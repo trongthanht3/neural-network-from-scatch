@@ -8,6 +8,35 @@ class Loss:
     def backward(self, dvalues, y_true):
         raise NotImplementedError
 
+    def regularization_loss(self, layer):
+        """
+            Regularization methods are those which reduce generalization error.
+            Large weights might indicate that a neuron is attempting to memorize a data
+            element; generally, it is believed that it would be better to have
+            many neurons contributing to a model’s output, rather than a select few.
+            :param layer:
+            :return:
+        """
+        regularization_loss = 0
+
+        # l1 regularization - weights
+        # caculate only when factor greater than 0
+        if layer.weight_regularizer_l1 > 0:
+            regularization_loss += layer.weight_regularizer_l1 * np.sum(np.abs(layer.weights))
+        # l2 regularization - weights
+        if layer.weight_regularizer_l2 > 0:
+            regularization_loss += layer.weight_regularizer_l2 * np.sum(layer.weights * layer.weights)
+
+        # l1 regularization - biases
+        # caculate only when factor greater than 0
+        if layer.bias_regularizer_l1 > 0:
+            regularization_loss += layer.bias_regularizer_l1 * np.sum(np.abs(layer.biases))
+        # l2 regularization - biases
+        if layer.bias_regularizer_l2 > 0:
+            regularization_loss += layer.bias_regularizer_l2 * np.sum(layer.biases * layer.biases)
+
+        return regularization_loss
+
     def caculate(self, outputs, y):
         sample_losses = self.forward(outputs, y)
         data_loss = np.mean(sample_losses)

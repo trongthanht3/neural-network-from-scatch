@@ -1,5 +1,5 @@
 import numpy as np
-from Layer import Dense
+from Layer import Dense, Dropout
 from Metrics import accuracy_score
 
 
@@ -17,7 +17,7 @@ class Network:
         """
         self.layers.append(layer)
 
-    def use(self, loss_function, optimizer):
+    def compile(self, loss_function, optimizer):
         """
             Set loss_function and optimizer
             :param loss_function:
@@ -62,10 +62,13 @@ class Network:
             # print(output)
 
             # compute loss
-            # if self.loss_function != None:
-            loss = self.loss_function.caculate(output, y_train)
-            # print("Loss:", loss)
-            # print(output.shape, y_train.shape)
+            data_loss = self.loss_function.caculate(output, y_train)
+            # caculate regularization penalty
+            regularization_loss = 0
+            for layer in self.layers:
+                if isinstance(layer, Dense):
+                    regularization_loss += self.loss_function.regularization_loss(layer)
+            loss = data_loss + regularization_loss
 
             # backward propagation
             loss_back = self.loss_function.backward(output, y_train)
@@ -82,14 +85,13 @@ class Network:
 
             # calculate average error on all samples
             # loss /= samples
-            print('Epoch: {}/{} | loss={:.5f}'.format(i + 1, epochs, loss), end=' | ')
-
-
+            print('Epoch: {}/{} | loss={:.5f} (data_loss={:.5f}, reg_loss={:.5f})'
+                  .format(i + 1, epochs, loss, data_loss, regularization_loss), end=' | ')
 
             # caculate accuracy
             predictions = np.argmax(output, axis=1)
             accuracy = accuracy_score(y_pred=predictions, y_true=y_train)
-            print("Accuracy={}".format(accuracy), end=' | ')
+            print("Accuracy={:.5f}".format(accuracy), end=' | ')
             print("lr={}".format(self.optimizer.current_learning_rate))
 
     def eval(self, X_test, y_test):
@@ -103,6 +105,8 @@ class Network:
 
         # data forward to model
         for layer in self.layers:
+            if isinstance(layer, Dropout):
+                continue
             output = layer.forward(inputs=output)
 
         # compute loss
