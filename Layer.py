@@ -11,7 +11,7 @@ class Layer:
         raise NotImplementedError
 
     # computes dE/dX for a given dE/dY (and update parameters if any)
-    def backward(self, dvalues, learning_rate):
+    def backward(self, dvalues):
         raise NotImplementedError
 
 
@@ -39,7 +39,7 @@ class Dense(Layer):
         self.outputs = np.dot(self.inputs, self.weights) + self.biases
         return self.outputs
 
-    def backward(self, dvalues, learning_rate):
+    def backward(self, dvalues):
         # gradients on param
         self.dweights = np.dot(self.inputs.T, dvalues)
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
@@ -84,7 +84,7 @@ class Dropout(Layer):
 
         return self.outputs
 
-    def backward(self, dvalues, learning_rate):
+    def backward(self, dvalues):
         # gradient on values
         self.dinputs = dvalues * self.binary_mask
 

@@ -9,17 +9,19 @@ class ReLU(Layer):
         we’re appending it to the output list, and if it’s not,
         we’re appending 0.
     """
+
     def forward(self, inputs):
         self.inputs = inputs
         self.outputs = np.maximum(0, self.inputs)
         return self.outputs
 
-    def backward(self, dvalues, learning_rate):
+    def backward(self, dvalues):
         self.dinputs = dvalues.copy()
 
         # zero gradient
         self.dinputs[self.inputs <= 0] = 0
         return self.dinputs
+
 
 class Sigmoid(Layer):
     """
@@ -27,10 +29,18 @@ class Sigmoid(Layer):
         for negative infinity, through 0.5 for the
         input of 0, and to 1 for positive infinity.
     """
+
     def forward(self, inputs):
         self.inputs = inputs
-        self.outputs = 1/(1+np.exp(-1*self.inputs))
+        self.outputs = 1 / (1 + np.exp(-1 * self.inputs))
+
         return self.outputs
+
+    def backward(self, dvalues):
+        self.dinputs = dvalues * (1 - self.outputs) * self.outputs
+
+        return self.dinputs
+
 
 class Softmax(Layer):
     """
@@ -38,6 +48,7 @@ class Softmax(Layer):
     function represents confidence scores for each class
     and will add up to 1
     """
+
     def forward(self, inputs):
         self.inputs = inputs
         # Get unnormalized probabilities
@@ -49,7 +60,7 @@ class Softmax(Layer):
         self.outputs = probabilities
         return self.outputs
 
-    def backward(self, dvalues, learning_rate):
+    def backward(self, dvalues):
         # Create uninitialized array
         self.dinputs = np.empty_like(dvalues)
         # Enumerate outputs and gradients
@@ -64,10 +75,10 @@ class Softmax(Layer):
                                          single_dvalues)
         return self.dinputs
 
+
 class Hardlim(Layer):
     def forward(self, inputs):
         return (inputs > 0) * 1.0
-
 
 # if __name__ == '__main__':
 #     relu = Softmax()
