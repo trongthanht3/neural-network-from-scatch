@@ -50,7 +50,3 @@ def _extract_labels(label_file, num_images):
         labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
     
     return labels
-
-x, y = read("testing")
-k = np.ravel(y)
-print(k.shape)

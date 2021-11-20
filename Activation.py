@@ -2,7 +2,12 @@ import numpy as np
 from Layer import Layer
 
 
-class ReLU(Layer):
+class Activation(Layer):
+    def predictions(self, outputs):
+        raise NotImplementedError
+
+
+class ReLU(Activation):
     """
         The ReLU in this code is a loop where we’re checking
         if the current value is greater than 0. If it is,
@@ -22,8 +27,10 @@ class ReLU(Layer):
         self.dinputs[self.inputs <= 0] = 0
         return self.dinputs
 
+    def predictions(self, outputs):
+        return outputs
 
-class Sigmoid(Layer):
+class Sigmoid(Activation):
     """
         This function returns a value in the range of 0
         for negative infinity, through 0.5 for the
@@ -41,8 +48,11 @@ class Sigmoid(Layer):
 
         return self.dinputs
 
+    def predictions(self, outputs):
+        return (outputs > 0.5) * 1
 
-class Softmax(Layer):
+
+class Softmax(Activation):
     """
     This distribution returned by the softmax activation
     function represents confidence scores for each class
@@ -75,10 +85,16 @@ class Softmax(Layer):
                                          single_dvalues)
         return self.dinputs
 
+    def predictions(self, outputs):
+        return np.argmax(outputs, axis=1)
 
-class Hardlim(Layer):
+
+class Hardlim(Activation):
     def forward(self, inputs):
         return (inputs > 0) * 1.0
+
+    def predictions(self, outputs):
+        return outputs
 
 # if __name__ == '__main__':
 #     relu = Softmax()
