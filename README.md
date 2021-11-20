@@ -26,3 +26,6 @@
   # Example
   python main.py adam True
 ```
+
+# Score
+![all](https://raw.githubusercontent.com/trongthanht3/neural-network-from-scatch/main/plot_image/all.png)
