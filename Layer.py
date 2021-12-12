@@ -24,6 +24,8 @@ class Dense(Layer):
             :param n_inputs: numbers of feature
             :param n_neurons: number of neuron
         """
+        self.n_inputs = n_inputs
+        self.n_neurons = n_neurons
         # init random weights and biases
         self.weights = 0.01 * np.random.rand(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))

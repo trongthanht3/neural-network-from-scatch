@@ -34,6 +34,56 @@ class Network:
         self.optimizer = optimizer
         self.metrics = metrics
 
+    def summary(self):
+        layer_queue = self.layers.copy()[::-1]
+        layer_queue_name = [type(i).__name__ for i in self.layers.copy()[::-1]]
+        print(layer_queue_name)
+        counted = []
+        last_neuron = 0
+        total_params = 0
+
+        print()
+        print('Model: "{}"'.format(type(self).__name__))
+        print(u"────────────────────────────────────────────────────────────────")
+        print("Layer (type)                 Output Shape              Param #   ")
+        print("=================================================================")
+
+        while layer_queue:
+            layer_pop = layer_queue.pop()
+            layer_pop_name = layer_queue_name.pop()
+            if counted.count(layer_pop_name) > 0:
+                l_str = "{} ({})".format(str(layer_pop_name).lower(), layer_pop_name)
+                print("{:<29}".format(l_str), end='')
+                if isinstance(layer_pop, Dense):
+                    l_oshape = "({}, {})".format(None, layer_pop.n_neurons)
+                    last_neuron = layer_pop.n_neurons
+                    l_params = (layer_pop.n_inputs+1) * layer_pop.n_neurons
+                else:
+                    l_oshape = "({}, {})".format(None, last_neuron)
+                    l_params = 0
+                print("{:<26}".format(l_oshape), end='')
+                print("{:<10}".format(str(l_params)))
+                total_params += l_params
+            else:
+                l_str = "{} ({})".format(str(layer_pop_name).lower(), layer_pop_name)
+                print("{:<29}".format(l_str), end='')
+                if isinstance(layer_pop, Dense):
+                    l_oshape = "({}, {})".format(None, layer_pop.n_neurons)
+                    last_neuron = layer_pop.n_neurons
+                    l_params = (layer_pop.n_inputs+1) * layer_pop.n_neurons
+                else:
+                    l_oshape = "({}, {})".format(None, last_neuron)
+                    l_params = 0
+                print("{:<26}".format(l_oshape), end='')
+                print("{:<10}".format(str(l_params)))
+                total_params += l_params
+            counted.append(layer_pop_name)
+            print('-----------------------------------------------------------------')
+        del counted
+        print("=================================================================")
+        print("Total params:", total_params)
+        print('-----------------------------------------------------------------')
+
     def forward(self, X, training):
         output = X.copy()
 
@@ -145,13 +195,11 @@ class Network:
             print("lr={:.5f}".format(self.optimizer.current_learning_rate), end=" | ", flush=True)
             sys.stdout.flush()
 
-
-
             if validation_data is not None:
                 _, accuracy, precision, recall, f1 = self.eval(X_val, y_val, verbose=False)
                 log_step = pd.Series(index=['run', 'epoch', 'epoch_accuracy',
-                                             'epoch_precision', 'epoch_recall',
-                                             'epoch_f1', 'epoch_loss'])
+                                            'epoch_precision', 'epoch_recall',
+                                            'epoch_f1', 'epoch_loss'])
                 log_step['run'] = type(self.optimizer).__name__ + '/validation'
                 log_step['epoch'] = i
                 log_step['epoch_accuracy'] = accuracy
@@ -195,12 +243,12 @@ class Network:
         recall = recall_score(y_true=y_test, y_pred=predictions, average='macro')
         f1 = f1_score(y_true=y_test, y_pred=predictions, average='macro')
         print("""Validation: Accuracy={:.5f} | loss={:.5f}"""
-              .format(accuracy, loss,), flush=True)
+              .format(accuracy, loss, ), flush=True)
         if verbose:
             print("""Precision={} | Recall={} | F1={}"""
                   .format(precision,
-                      recall,
-                      f1), flush=True)
+                          recall,
+                          f1), flush=True)
             print(classification_report(y_true=y_test, y_pred=predictions))
         return predictions, accuracy, precision, recall, f1
 

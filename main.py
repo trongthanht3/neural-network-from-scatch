@@ -69,7 +69,8 @@ def train(optimizer_name, save_model=False):
 
     # model.compile(CategoricalCrossentropy(), SteepestDecent(learining_rate=0.39, decay=0))
 
-    model.fit(X, y, epochs=50, batch_size=128, validation_data=(Xt, yt), save_log=save_log)
+    model.summary()
+    # model.fit(X, y, epochs=50, batch_size=128, validation_data=(Xt, yt), save_log=save_log)
 
     if save_model:
         model.save_model("mnist.pkl")
