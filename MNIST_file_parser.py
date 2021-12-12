@@ -8,7 +8,7 @@ def _read32(bytestream):
 
 def read(dataset = "training", path = os.path.join('./')):
 
-    path = os.path.join (path, 'MNIST_data')
+    path = os.path.join (path, 'F_MNIST_data')
 
     if dataset is "training":
         image_file = os.path.join(path, 'train-images-idx3-ubyte.gz')

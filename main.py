@@ -10,7 +10,7 @@ from Optimizers import SGD, Adagrad, RMSprop, Adam, SteepestDecent
 from Metrics import Accuracy_Categorical
 
 
-def train(optimizer_name, save_model=False):
+def train(optimizer_name, batch_size=128, epochs=50, save_model=False):
     ####################### train model
     X, y = mnist.read("training")
     y = np.ravel(y)
@@ -51,10 +51,11 @@ def train(optimizer_name, save_model=False):
             metrics=Accuracy_Categorical()
         )
         save_log = 'logs/logAdagrad.csv'
+
     if optimizer_name == 'rmsprop':
         model.compile(
             loss_function=CategoricalCrossentropy(),
-            optimizer=RMSprop(decay=1e-4, epsilon=1e-7, rho=0.999),
+            optimizer=RMSprop(decay=0.006, epsilon=1e-7, rho=0.999),
             metrics=Accuracy_Categorical()
         )
         save_log = 'logs/logRMSprop.csv'
@@ -62,7 +63,7 @@ def train(optimizer_name, save_model=False):
     if optimizer_name == 'adam':
         model.compile(
             loss_function=CategoricalCrossentropy(),
-            optimizer=Adam(decay=1e-4),
+            optimizer=Adam(decay=0.006),
             metrics=Accuracy_Categorical()
         )
         save_log = 'logs/logAdam.csv'
@@ -70,7 +71,7 @@ def train(optimizer_name, save_model=False):
     # model.compile(CategoricalCrossentropy(), SteepestDecent(learining_rate=0.39, decay=0))
 
     model.summary()
-    # model.fit(X, y, epochs=50, batch_size=128, validation_data=(Xt, yt), save_log=save_log)
+    model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_data=(Xt, yt), save_log=save_log)
 
     if save_model:
         model.save_model("mnist.pkl")
@@ -96,7 +97,7 @@ def test_model(mnist=mnist):
 
     model = Network()
 
-    model = model.load_model("./mnist.pkl")
+    model = model.load_model("./f_mnist.pkl")
 
     result = model.predict(Xt)
     result = np.argmax(result, axis=1)
@@ -105,14 +106,20 @@ def test_model(mnist=mnist):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("optimizer", help="choose optimzer to train",
+    parser.add_argument("--optimizer", help="choose optimzer to train",
                         type=str)
-    parser.add_argument("save_model", help="True/False save model",
+    parser.add_argument("--batch_size", help="batch size",
+                        type=int)
+    parser.add_argument("--epochs", help="nums of epoch",
+                        type=int)
+    parser.add_argument("--save_model", help="True/False save model",
                         type=bool)
     args = parser.parse_args()
 
 
     print("Training model with {}.............".format(args.optimizer))
     optimizer_name = args.optimizer
+    batch_size = args.batch_size
+    epochs = args.epochs
     save_model = args.save_model
-    train(optimizer_name, save_model)
+    train(optimizer_name, batch_size, epochs, save_model)
